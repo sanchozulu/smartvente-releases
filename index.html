@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartVente — Descargar</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #1f2937, #111827);
+      border: 1px solid #374151;
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .os-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .os-name {
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    .version {
+      color: #6b7280;
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: #fff;
+      text-decoration: none;
+      padding: 0.9rem 2rem;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: opacity 0.15s, transform 0.15s;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.35);
+      width: 100%;
+      justify-content: center;
+    }
+    .btn-download:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-download:active { transform: translateY(0); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #6b7280;
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-top: 1.2rem;
+      transition: color 0.15s;
+    }
+    .btn-secondary:hover { color: #9ca3af; }
+
+    .all-downloads {
+      margin-top: 2.5rem;
+      text-align: center;
+    }
+    .all-downloads a {
+      color: #4b5563;
+      font-size: 0.8rem;
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .all-downloads a:hover { color: #6b7280; }
+
+    .loading {
+      color: #4b5563;
+      font-size: 0.9rem;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .note {
+      color: #4b5563;
+      font-size: 0.75rem;
+      margin-top: 1rem;
+      line-height: 1.5;
+    }
+
+    /* Logo animado */
+    .sv-logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    .sv-logo-icon {
+      width: 72px;
+      height: 72px;
+    }
+    .sv-logo-name {
+      font-size: 2rem;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+    }
+    .sv-logo-name span { color: #8b5cf6; }
+    .sv-tagline {
+      color: #6b7280;
+      font-size: 0.8rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    @keyframes spin-cw {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes spin-ccw {
+      from { transform: rotate(65deg); }
+      to   { transform: rotate(-295deg); }
+    }
+    .orbit-cw  { transform-origin: 50px 50px; animation: spin-cw  5s linear infinite; }
+    .orbit-ccw { transform-origin: 50px 50px; animation: spin-ccw 7s linear infinite; }
+  </style>
+</head>
+<body>
+
+  <div class="sv-logo-wrap">
+    <!-- Logo animado SmartVente -->
+    <svg class="sv-logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="22" fill="#8b5cf6"/>
+      <g class="orbit-cw">
+        <ellipse cx="50" cy="50" rx="13" ry="30" fill="none" stroke="#1e0a3c" stroke-width="2.5" opacity="0.85"/>
+        <circle cx="50" cy="20" r="4.5" fill="#1e0a3c"/>
+      </g>
+      <g class="orbit-ccw">
+        <ellipse cx="50" cy="50" rx="13" ry="30" fill="none" stroke="#1e0a3c" stroke-width="2.5" opacity="0.85"/>
+        <circle cx="50" cy="80" r="4" fill="#1e0a3c"/>
+      </g>
+      <circle cx="50" cy="50" r="8.5" fill="#1e0a3c"/>
+      <circle cx="50" cy="50" r="4"   fill="#8b5cf6"/>
+    </svg>
+    <div class="sv-logo-name">Smart<span>Vente</span></div>
+    <div class="sv-tagline">AI-Powered POS</div>
+  </div>
+
+  <div class="card" id="card">
+    <div class="loading">Detectando tu sistema…</div>
+  </div>
+
+
+  <script>
+    const GITHUB_API = 'https://api.github.com/repos/sanchozulu/smartvente-releases/releases/latest'
+
+    async function init() {
+      const card = document.getElementById('card')
+
+      let release
+      try {
+        const res = await fetch(GITHUB_API)
+        release = await res.json()
+      } catch {
+        card.innerHTML = `<p class="error-msg">No se pudo obtener la versión más reciente.<br>
+          <a href="https://github.com/sanchozulu/smartvente/releases/latest"
+             style="color:#f97316">Ver releases en GitHub →</a></p>`
+        return
+      }
+
+      const version = release.tag_name || ''
+      const assets  = release.assets  || []
+
+      const ua = navigator.userAgent
+      const isMac     = /Macintosh|Mac OS X/i.test(ua)
+      const isWindows = /Windows/i.test(ua)
+
+      // Buscar assets por extensión
+      const dmg = assets.find(a => a.name.endsWith('.dmg'))
+      const exe = assets.find(a => a.name.endsWith('.exe'))
+
+      if (isMac && dmg) {
+        card.innerHTML = `
+          <div class="os-icon">🍎</div>
+          <div class="os-name">macOS</div>
+          <div class="version">${version} · Apple Silicon (M1/M2/M3)</div>
+          <a class="btn-download" href="${dmg.browser_download_url}">
+            ⬇ Descargar para Mac
+          </a>
+          <div class="note">
+            Requiere macOS 12 o superior.<br>
+            Al abrir el .dmg, arrastra SmartVente a Aplicaciones.
+          </div>`
+      } else if (isWindows && exe) {
+        card.innerHTML = `
+          <div class="os-icon">🪟</div>
+          <div class="os-name">Windows</div>
+          <div class="version">${version} · Windows 10/11 (64-bit)</div>
+          <a class="btn-download" href="${exe.browser_download_url}">
+            ⬇ Descargar para Windows
+          </a>
+          <div class="note">
+            Ejecuta el instalador y sigue los pasos.<br>
+            Si Windows muestra una advertencia, haz clic en "Más información → Ejecutar de todas formas".
+          </div>`
+      } else {
+        // OS no detectado o archivo no disponible — mostrar ambos
+        card.innerHTML = `
+          <div class="os-name">Elige tu sistema</div>
+          <div class="version">${version}</div>
+          <div style="display:flex;flex-direction:column;gap:0.8rem;margin-top:1.2rem">
+            ${dmg ? `<a class="btn-download" href="${dmg.browser_download_url}">🍎 Mac (Apple Silicon)</a>` : ''}
+            ${exe ? `<a class="btn-download" href="${exe.browser_download_url}" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 4px 20px rgba(59,130,246,0.35)">🪟 Windows</a>` : ''}
+          </div>`
+      }
+    }
+
+    init()
+  </script>
+</body>
+</html>
